@@ -119,6 +119,7 @@ def baixar_boleto_pdf(docname=None, boleto=None):
     conta = frappe.get_doc("Configuracao Conta Bancaria", bol_doc.conta_bancaria)
     comp = frappe.get_doc("Company", bol_doc.empresa)
     bol_doc.banco_nome = conta.banco_nome
+    bol_doc.banco_codigo = conta.banco_codigo
     bol_doc.beneficiario_nome = comp.company_name or comp.name
     bol_doc.beneficiario_cnpj = comp.tax_id or conta.get("cnpj") or "18.594.769/0001-40"
     bol_doc.agencia = f"{conta.agencia}-{conta.digito_agencia or '0'}"
