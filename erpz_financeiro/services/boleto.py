@@ -89,7 +89,7 @@ def gerar_pdf_boleto(b) -> bytes:
     p = canvas.Canvas(buffer, pagesize=(width, height))
 
     banco_cod = str(getattr(b, "banco_codigo", None) or getattr(b, "banco", None) or "341")[:3].zfill(3)
-    binfo = BANCOS_INFO.get(banco_cod, {"nome": b.banco_nome or "BANCO", "num": f"{banco_cod}-X"})
+    binfo = BANCOS_INFO.get(banco_cod, {"nome": getattr(b, "banco_nome", None) or "BANCO", "num": f"{banco_cod}-X"})
     banco_nome = binfo["nome"]
     banco_header = binfo["num"]
 
@@ -100,195 +100,251 @@ def gerar_pdf_boleto(b) -> bytes:
     w_dir = 57 * mm
     w_esq = 123 * mm
 
-    def desenhar_recibo_ou_ficha(y_top, is_ficha=True):
-        p.setStrokeColorRGB(0, 0, 0)
-        p.setFillColorRGB(0, 0, 0)
+    # --- PARTE 1: RECIBO DO PAGADOR (Topo da folha) ---
+    y_top1 = height - 15 * mm
+    p.setStrokeColorRGB(0, 0, 0)
+    p.setFillColorRGB(0, 0, 0)
+    p.setLineWidth(1.0)
+    p.line(ml, y_top1, mr, y_top1)
 
-        # Header do Banco
-        p.setLineWidth(1.0)
-        p.line(ml, y_top, mr, y_top)
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(ml + 1 * mm, y_top1 - 6 * mm, banco_nome[:22])
 
-        # Logo / Nome Banco
-        p.setFont("Helvetica-Bold", 12)
-        p.drawString(ml + 2 * mm, y_top - 6 * mm, banco_nome[:28])
+    p.setLineWidth(1.2)
+    p.rect(ml + 54 * mm, y_top1 - 8 * mm, 17 * mm, 8 * mm)
+    p.setFont("Helvetica-Bold", 12)
+    p.drawCentredString(ml + 62.5 * mm, y_top1 - 6 * mm, banco_header)
 
-        # Caixa com Código do Banco
-        p.setLineWidth(1.5)
-        p.rect(ml + 68 * mm, y_top - 8 * mm, 18 * mm, 8 * mm)
-        p.setFont("Helvetica-Bold", 13)
-        p.drawCentredString(ml + 77 * mm, y_top - 6.5 * mm, banco_header)
+    p.setFont("Helvetica-Bold", 10.5)
+    p.drawRightString(mr - 1 * mm, y_top1 - 6 * mm, "RECIBO DO PAGADOR")
 
-        # Linha Digitável
-        p.setFont("Helvetica-Bold", 10.5)
-        linha_dig = b.linha_digitavel or "34191.09008 00000.212340 00567.890009 3 15730000031000"
-        p.drawRightString(mr, y_top - 6 * mm, linha_dig)
+    y1 = y_top1 - 8.5 * mm
+    p.setLineWidth(0.5)
 
-        y = y_top - 8.5 * mm
+    # Linha 1 Recibo
+    p.rect(ml, y1 - 9 * mm, w_esq, 9 * mm)
+    p.rect(col_dir, y1 - 9 * mm, w_dir, 9 * mm)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y1 - 2.8 * mm, "BENEFICIÁRIO")
+    p.drawString(col_dir + 1.5 * mm, y1 - 2.8 * mm, "VENCIMENTO")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(ml + 1.5 * mm, y1 - 6.8 * mm, f"{b.beneficiario_nome} - CNPJ: {b.beneficiario_cnpj}")
+    p.setFont("Helvetica-Bold", 9)
+    dt_venc = b.data_vencimento.strftime("%d/%m/%Y") if hasattr(b.data_vencimento, "strftime") else str(b.data_vencimento)
+    p.drawRightString(mr - 2 * mm, y1 - 6.8 * mm, dt_venc)
+    y1 -= 9 * mm
 
-        # Grade Principal
-        p.setLineWidth(0.5)
+    # Linha 2 Recibo
+    p.rect(ml, y1 - 9 * mm, w_esq, 9 * mm)
+    p.rect(col_dir, y1 - 9 * mm, w_dir, 9 * mm)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y1 - 2.8 * mm, "AGÊNCIA / CÓDIGO BENEFICIÁRIO")
+    p.drawString(col_dir + 1.5 * mm, y1 - 2.8 * mm, "VALOR DO DOCUMENTO")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(ml + 1.5 * mm, y1 - 6.8 * mm, f"{b.agencia} / {b.conta_corrente}")
+    p.setFont("Helvetica-Bold", 9.5)
+    p.drawRightString(mr - 2 * mm, y1 - 6.8 * mm, f"R$ {b.valor_documento:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    y1 -= 9 * mm
 
-        # Linha 1: Local de Pagamento | Vencimento
-        p.rect(ml, y - 9 * mm, w_esq, 9 * mm)
-        p.rect(col_dir, y - 9 * mm, w_dir, 9 * mm)
-        p.setFont("Helvetica", 6)
-        p.drawString(ml + 1.5 * mm, y - 2.8 * mm, "LOCAL DE PAGAMENTO")
-        p.drawString(col_dir + 1.5 * mm, y - 2.8 * mm, "DATA DE VENCIMENTO")
-        p.setFont("Helvetica-Bold", 7.5)
-        p.drawString(ml + 1.5 * mm, y - 6.5 * mm, "PAGÁVEL EM QUALQUER BANCO ATÉ O VENCIMENTO")
-        p.setFont("Helvetica-Bold", 9)
-        dt_venc = b.data_vencimento.strftime("%d/%m/%Y") if hasattr(b.data_vencimento, "strftime") else str(b.data_vencimento)
-        p.drawRightString(mr - 2 * mm, y - 6.8 * mm, dt_venc)
-        y -= 9 * mm
+    # Linha 3 Recibo
+    p.rect(ml, y1 - 9 * mm, w_esq, 9 * mm)
+    p.rect(col_dir, y1 - 9 * mm, w_dir, 9 * mm)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y1 - 2.8 * mm, "Nº DOCUMENTO / NOSSO NÚMERO")
+    p.drawString(col_dir + 1.5 * mm, y1 - 2.8 * mm, "CARTEIRA")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(ml + 1.5 * mm, y1 - 6.8 * mm, f"{b.numero_documento}  /  Nosso Nº: {b.carteira or '109'}/{b.nosso_numero}")
+    p.drawString(col_dir + 1.5 * mm, y1 - 6.8 * mm, str(b.carteira or "109"))
+    y1 -= 9 * mm
 
-        # Linha 2: Beneficiário | Agência / Código Beneficiário
-        p.rect(ml, y - 9 * mm, w_esq, 9 * mm)
-        p.rect(col_dir, y - 9 * mm, w_dir, 9 * mm)
-        p.setFont("Helvetica", 6)
-        p.drawString(ml + 1.5 * mm, y - 2.8 * mm, "BENEFICIÁRIO")
-        p.drawString(col_dir + 1.5 * mm, y - 2.8 * mm, "AGÊNCIA / CÓDIGO BENEFICIÁRIO")
-        p.setFont("Helvetica-Bold", 8)
-        p.drawString(ml + 1.5 * mm, y - 6.8 * mm, f"{b.beneficiario_nome} - CNPJ: {b.beneficiario_cnpj}")
-        p.drawRightString(mr - 2 * mm, y - 6.8 * mm, f"{b.agencia} / {b.conta_corrente}")
-        y -= 9 * mm
-
-        # Linha 3: Data Doc | Nº Doc | Espécie Doc | Aceite | Data Proc | Nosso Número
-        w_sub = w_esq / 5
-        p.rect(ml, y - 9 * mm, w_esq, 9 * mm)
-        p.rect(col_dir, y - 9 * mm, w_dir, 9 * mm)
-        p.line(ml + w_sub, y, ml + w_sub, y - 9 * mm)
-        p.line(ml + w_sub * 2.2, y, ml + w_sub * 2.2, y - 9 * mm)
-        p.line(ml + w_sub * 3.1, y, ml + w_sub * 3.1, y - 9 * mm)
-        p.line(ml + w_sub * 3.9, y, ml + w_sub * 3.9, y - 9 * mm)
-
-        dt_emi = b.data_emissao.strftime("%d/%m/%Y") if hasattr(b.data_emissao, "strftime") else str(b.data_emissao)
-        p.setFont("Helvetica", 5.5)
-        p.drawString(ml + 1.5 * mm, y - 2.8 * mm, "DATA DOCUMENTO")
-        p.drawString(ml + w_sub + 1.5 * mm, y - 2.8 * mm, "Nº DOCUMENTO")
-        p.drawString(ml + w_sub * 2.2 + 1.5 * mm, y - 2.8 * mm, "ESPÉCIE DOC")
-        p.drawString(ml + w_sub * 3.1 + 1.5 * mm, y - 2.8 * mm, "ACEITE")
-        p.drawString(ml + w_sub * 3.9 + 1.5 * mm, y - 2.8 * mm, "DATA PROCESSAMENTO")
-        p.drawString(col_dir + 1.5 * mm, y - 2.8 * mm, "NOSSO NÚMERO")
-
-        p.setFont("Helvetica-Bold", 7.5)
-        p.drawString(ml + 1.5 * mm, y - 6.8 * mm, dt_emi)
-        p.drawString(ml + w_sub + 1.5 * mm, y - 6.8 * mm, str(b.numero_documento or b.name)[:14])
-        p.drawString(ml + w_sub * 2.2 + 1.5 * mm, y - 6.8 * mm, "DM")
-        p.drawString(ml + w_sub * 3.1 + 1.5 * mm, y - 6.8 * mm, "N")
-        p.drawString(ml + w_sub * 3.9 + 1.5 * mm, y - 6.8 * mm, dt_emi)
-        p.setFont("Helvetica-Bold", 8.5)
-        p.drawRightString(mr - 2 * mm, y - 6.8 * mm, f"{b.carteira or '109'} / {b.nosso_numero}")
-        y -= 9 * mm
-
-        # Linha 4: Uso do Banco | Carteira | Espécie | Quantidade | Valor | (=) Valor do Documento
-        p.rect(ml, y - 9 * mm, w_esq, 9 * mm)
-        p.rect(col_dir, y - 9 * mm, w_dir, 9 * mm)
-        p.line(ml + w_sub, y, ml + w_sub, y - 9 * mm)
-        p.line(ml + w_sub * 2, y, ml + w_sub * 2, y - 9 * mm)
-        p.line(ml + w_sub * 3, y, ml + w_sub * 3, y - 9 * mm)
-        p.line(ml + w_sub * 4, y, ml + w_sub * 4, y - 9 * mm)
-
-        p.setFont("Helvetica", 5.5)
-        p.drawString(ml + 1.5 * mm, y - 2.8 * mm, "USO DO BANCO")
-        p.drawString(ml + w_sub + 1.5 * mm, y - 2.8 * mm, "CARTEIRA")
-        p.drawString(ml + w_sub * 2 + 1.5 * mm, y - 2.8 * mm, "ESPÉCIE MOEDA")
-        p.drawString(ml + w_sub * 3 + 1.5 * mm, y - 2.8 * mm, "QUANTIDADE")
-        p.drawString(ml + w_sub * 4 + 1.5 * mm, y - 2.8 * mm, "VALOR MOEDA")
-        p.drawString(col_dir + 1.5 * mm, y - 2.8 * mm, "(=) VALOR DO DOCUMENTO")
-
-        p.setFont("Helvetica-Bold", 7.5)
-        p.drawString(ml + w_sub + 1.5 * mm, y - 6.8 * mm, str(b.carteira or "109"))
-        p.drawString(ml + w_sub * 2 + 1.5 * mm, y - 6.8 * mm, "R$")
-        p.setFont("Helvetica-Bold", 9.5)
-        p.drawRightString(mr - 2 * mm, y - 6.8 * mm, f"R$ {b.valor_documento:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
-        y -= 9 * mm
-
-        # Linha 5: Instruções de Caixa (Esquerda 42mm) x Coluna de Valores (Direita 5 caixas)
-        h_inst = 42 * mm
-        p.rect(ml, y - h_inst, w_esq, h_inst)
-        p.setFont("Helvetica", 6)
-        p.drawString(ml + 1.5 * mm, y - 2.8 * mm, "INSTRUÇÕES (Todas as informações deste boleto são de exclusiva responsabilidade do beneficiário)")
-
-        p.setFont("Helvetica", 7.5)
-        p.drawString(ml + 2 * mm, y - 7 * mm, "- Cobrar juros de mora de 1,0% ao mês após o vencimento.")
-        p.drawString(ml + 2 * mm, y - 11.5 * mm, "- Cobrar multa de 2,0% após o vencimento.")
-        p.drawString(ml + 2 * mm, y - 16 * mm, "- Não receber após 30 dias do vencimento.")
-        p.drawString(ml + 2 * mm, y - 20.5 * mm, "- Sujeito a protesto após 5 dias úteis do vencimento.")
-
-        # QR Code PIX (Boleto Híbrido) desenhado dentro do quadro de instruções
-        if b.qr_code_pix:
-            p.setFont("Helvetica-Bold", 7.5)
-            p.drawString(ml + 85 * mm, y - 7 * mm, "Pague com PIX:")
-            p.setFont("Helvetica", 6)
-            p.drawString(ml + 85 * mm, y - 10.5 * mm, "Boleto Híbrido")
-
-            qr = qrcode.QRCode(box_size=3, border=1)
-            qr.add_data(b.qr_code_pix)
-            qr.make(fit=True)
-            img_qr = qr.make_image(fill_color="black", back_color="white")
-            qr_buf = BytesIO()
-            img_qr.save(qr_buf, format="PNG")
-            qr_buf.seek(0)
-            p.drawImage(ImageReader(qr_buf), ml + 85 * mm, y - 41 * mm, width=30 * mm, height=30 * mm)
-
-        # Coluna Direita (5 caixas de 8.4mm)
-        labels_dir = [
-            "(-) DESCONTO / ABATIMENTO",
-            "(-) OUTRAS DEDUÇÕES",
-            "(+) MORA / MULTA",
-            "(+) OUTROS ACRÉSCIMOS",
-            "(=) VALOR COBRADO"
-        ]
-        y_d = y
-        for lbl in labels_dir:
-            p.rect(col_dir, y_d - 8.4 * mm, w_dir, 8.4 * mm)
-            p.setFont("Helvetica", 5.5)
-            p.drawString(col_dir + 1.5 * mm, y_d - 2.8 * mm, lbl)
-            y_d -= 8.4 * mm
-
-        y -= h_inst
-
-        # Linha 6: Dados do Pagador (Sacado)
-        h_sac = 22 * mm
-        p.rect(ml, y - h_sac, w_box, h_sac)
-        p.setFont("Helvetica", 6)
-        p.drawString(ml + 1.5 * mm, y - 2.8 * mm, "PAGADOR")
-
-        p.setFont("Helvetica-Bold", 8)
-        p.drawString(ml + 2 * mm, y - 6.5 * mm, f"{b.pagador_nome} - CPF/CNPJ: {b.pagador_documento}")
-        p.setFont("Helvetica", 7.5)
-        p.drawString(ml + 2 * mm, y - 10.5 * mm, f"{b.pagador_endereco or 'ENDERECO NAO INFORMADO'} - {b.pagador_bairro or 'CENTRO'}")
-        p.drawString(ml + 2 * mm, y - 14.5 * mm, f"CEP: {b.pagador_cep or '00000-000'} - {b.pagador_cidade or 'SAO PAULO'}/{b.pagador_uf or 'SP'}")
-
-        p.setFont("Helvetica", 6)
-        p.drawString(ml + 2 * mm, y - 19.5 * mm, "Sacador / Avalista:")
-        p.drawRightString(mr - 2 * mm, y - 19.5 * mm, "Autenticação Mecânica - Ficha de Compensação" if is_ficha else "Autenticação Mecânica - Recibo do Pagador")
-        y -= h_sac
-
-        # Código de Barras I25 Febraban
-        if is_ficha and b.codigo_barras and len(b.codigo_barras) == 44:
-            d = createBarcodeDrawing("I2of5", value=b.codigo_barras, barWidth=0.254 * mm, barHeight=13 * mm, checksum=False)
-            d.drawOn(p, ml, y - 16 * mm)
-
-        return y
-
-    # 1. Recibo do Pagador (Topo da folha A4)
-    y_recibo = desenhar_recibo_ou_ficha(height - 15 * mm, is_ficha=False)
+    # Linha 4 Recibo: Pagador
+    p.rect(ml, y1 - 15 * mm, w_box, 15 * mm)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y1 - 2.8 * mm, "PAGADOR")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(ml + 2 * mm, y1 - 6.5 * mm, f"{b.pagador_nome} - CPF/CNPJ: {b.pagador_documento}")
+    p.setFont("Helvetica", 7.5)
+    p.drawString(ml + 2 * mm, y1 - 10.5 * mm, f"{b.pagador_endereco or 'ENDERECO NAO INFORMADO'} - {b.pagador_bairro or 'CENTRO'} - CEP: {b.pagador_cep or '00000-000'} - {b.pagador_cidade or 'SAO PAULO'}/{b.pagador_uf or 'SP'}")
+    p.setFont("Helvetica", 6)
+    p.drawRightString(mr - 2 * mm, y1 - 13.5 * mm, "Autenticação Mecânica - Recibo do Pagador")
+    y1 -= 15 * mm
 
     # Linha pontilhada de corte
-    y_corte = y_recibo - 10 * mm
+    y_corte = y1 - 8 * mm
     p.setDash(2, 3)
     p.setLineWidth(0.5)
-    p.setStrokeColorRGB(0.4, 0.4, 0.4)
+    p.setStrokeColorRGB(0.5, 0.5, 0.5)
     p.line(ml, y_corte, mr, y_corte)
-    p.setFont("Helvetica", 6)
+    p.setFont("Helvetica", 6.5)
     p.setFillColorRGB(0.4, 0.4, 0.4)
-    p.drawCentredString(width / 2, y_corte + 1 * mm, "--- Destaque ou corte na linha pontilhada ---")
+    p.drawCentredString(width / 2, y_corte + 1 * mm, "Destaque ou corte na linha pontilhada")
     p.setDash()
 
-    # 2. Ficha de Compensação Oficial Febraban (Parte inferior)
-    desenhar_recibo_ou_ficha(y_corte - 5 * mm, is_ficha=True)
+    # --- PARTE 2: FICHA DE COMPENSAÇÃO OFICIAL ---
+    y_top2 = y_corte - 6 * mm
+    p.setStrokeColorRGB(0, 0, 0)
+    p.setFillColorRGB(0, 0, 0)
+    p.setLineWidth(1.0)
+    p.line(ml, y_top2, mr, y_top2)
+
+    # Header Ficha
+    p.setFont("Helvetica-Bold", 11)
+    p.drawString(ml + 1 * mm, y_top2 - 6 * mm, banco_nome[:22])
+
+    p.setLineWidth(1.2)
+    p.rect(ml + 54 * mm, y_top2 - 8 * mm, 17 * mm, 8 * mm)
+    p.setFont("Helvetica-Bold", 12)
+    p.drawCentredString(ml + 62.5 * mm, y_top2 - 6 * mm, banco_header)
+
+    p.setFont("Helvetica-Bold", 9.5)
+    linha_dig = b.linha_digitavel or ""
+    p.drawRightString(mr - 0.5 * mm, y_top2 - 6 * mm, linha_dig)
+
+    y2 = y_top2 - 8.5 * mm
+    p.setLineWidth(0.5)
+
+    # Linha 1 Ficha: Local Pagto | Vencimento
+    p.rect(ml, y2 - 9 * mm, w_esq, 9 * mm)
+    p.rect(col_dir, y2 - 9 * mm, w_dir, 9 * mm)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y2 - 2.8 * mm, "LOCAL DE PAGAMENTO")
+    p.drawString(col_dir + 1.5 * mm, y2 - 2.8 * mm, "DATA DE VENCIMENTO")
+    p.setFont("Helvetica-Bold", 7.5)
+    p.drawString(ml + 1.5 * mm, y2 - 6.5 * mm, "PAGÁVEL EM QUALQUER BANCO ATÉ O VENCIMENTO")
+    p.setFont("Helvetica-Bold", 9)
+    p.drawRightString(mr - 2 * mm, y2 - 6.8 * mm, dt_venc)
+    y2 -= 9 * mm
+
+    # Linha 2 Ficha: Beneficiário | Agência / Código Beneficiário
+    p.rect(ml, y2 - 9 * mm, w_esq, 9 * mm)
+    p.rect(col_dir, y2 - 9 * mm, w_dir, 9 * mm)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y2 - 2.8 * mm, "BENEFICIÁRIO")
+    p.drawString(col_dir + 1.5 * mm, y2 - 2.8 * mm, "AGÊNCIA / CÓDIGO BENEFICIÁRIO")
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(ml + 1.5 * mm, y2 - 6.8 * mm, f"{b.beneficiario_nome} - CNPJ: {b.beneficiario_cnpj}")
+    p.drawRightString(mr - 2 * mm, y2 - 6.8 * mm, f"{b.agencia} / {b.conta_corrente}")
+    y2 -= 9 * mm
+
+    # Linha 3 Ficha: Data Doc | Nº Doc | Espécie | Aceite | Data Proc | Nosso Número
+    w_sub = w_esq / 5
+    p.rect(ml, y2 - 9 * mm, w_esq, 9 * mm)
+    p.rect(col_dir, y2 - 9 * mm, w_dir, 9 * mm)
+    p.line(ml + w_sub, y2, ml + w_sub, y2 - 9 * mm)
+    p.line(ml + w_sub * 2.2, y2, ml + w_sub * 2.2, y2 - 9 * mm)
+    p.line(ml + w_sub * 3.1, y2, ml + w_sub * 3.1, y2 - 9 * mm)
+    p.line(ml + w_sub * 3.9, y2, ml + w_sub * 3.9, y2 - 9 * mm)
+
+    dt_emi = b.data_emissao.strftime("%d/%m/%Y") if hasattr(b.data_emissao, "strftime") else str(b.data_emissao)
+    p.setFont("Helvetica", 5.5)
+    p.drawString(ml + 1.5 * mm, y2 - 2.8 * mm, "DATA DOCUMENTO")
+    p.drawString(ml + w_sub + 1.5 * mm, y2 - 2.8 * mm, "Nº DOCUMENTO")
+    p.drawString(ml + w_sub * 2.2 + 1.5 * mm, y2 - 2.8 * mm, "ESPÉCIE DOC")
+    p.drawString(ml + w_sub * 3.1 + 1.5 * mm, y2 - 2.8 * mm, "ACEITE")
+    p.drawString(ml + w_sub * 3.9 + 1.5 * mm, y2 - 2.8 * mm, "DATA PROCESSAMENTO")
+    p.drawString(col_dir + 1.5 * mm, y2 - 2.8 * mm, "NOSSO NÚMERO")
+
+    p.setFont("Helvetica-Bold", 7.5)
+    p.drawString(ml + 1.5 * mm, y2 - 6.8 * mm, dt_emi)
+    p.drawString(ml + w_sub + 1.5 * mm, y2 - 6.8 * mm, str(b.numero_documento or b.name)[:14])
+    p.drawString(ml + w_sub * 2.2 + 1.5 * mm, y2 - 6.8 * mm, "DM")
+    p.drawString(ml + w_sub * 3.1 + 1.5 * mm, y2 - 6.8 * mm, "N")
+    p.drawString(ml + w_sub * 3.9 + 1.5 * mm, y2 - 6.8 * mm, dt_emi)
+    p.setFont("Helvetica-Bold", 8.5)
+    p.drawRightString(mr - 2 * mm, y2 - 6.8 * mm, f"{b.carteira or '109'} / {b.nosso_numero}")
+    y2 -= 9 * mm
+
+    # Linha 4 Ficha: Uso do Banco | Carteira | Espécie | Quantidade | Valor | (=) Valor do Documento
+    p.rect(ml, y2 - 9 * mm, w_esq, 9 * mm)
+    p.rect(col_dir, y2 - 9 * mm, w_dir, 9 * mm)
+    p.line(ml + w_sub, y2, ml + w_sub, y2 - 9 * mm)
+    p.line(ml + w_sub * 2, y2, ml + w_sub * 2, y2 - 9 * mm)
+    p.line(ml + w_sub * 3, y2, ml + w_sub * 3, y2 - 9 * mm)
+    p.line(ml + w_sub * 4, y2, ml + w_sub * 4, y2 - 9 * mm)
+
+    p.setFont("Helvetica", 5.5)
+    p.drawString(ml + 1.5 * mm, y2 - 2.8 * mm, "USO DO BANCO")
+    p.drawString(ml + w_sub + 1.5 * mm, y2 - 2.8 * mm, "CARTEIRA")
+    p.drawString(ml + w_sub * 2 + 1.5 * mm, y2 - 2.8 * mm, "ESPÉCIE MOEDA")
+    p.drawString(ml + w_sub * 3 + 1.5 * mm, y2 - 2.8 * mm, "QUANTIDADE")
+    p.drawString(ml + w_sub * 4 + 1.5 * mm, y2 - 2.8 * mm, "VALOR MOEDA")
+    p.drawString(col_dir + 1.5 * mm, y2 - 2.8 * mm, "(=) VALOR DO DOCUMENTO")
+
+    p.setFont("Helvetica-Bold", 7.5)
+    p.drawString(ml + w_sub + 1.5 * mm, y2 - 6.8 * mm, str(b.carteira or "109"))
+    p.drawString(ml + w_sub * 2 + 1.5 * mm, y2 - 6.8 * mm, "R$")
+    p.setFont("Helvetica-Bold", 9.5)
+    p.drawRightString(mr - 2 * mm, y2 - 6.8 * mm, f"R$ {b.valor_documento:,.2f}".replace(",", "X").replace(".", ",").replace("X", "."))
+    y2 -= 9 * mm
+
+    # Linha 5 Ficha: Instruções (Esquerda 45mm) x Coluna de Valores (Direita 5 caixas)
+    h_inst = 45 * mm
+    p.rect(ml, y2 - h_inst, w_esq, h_inst)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y2 - 2.8 * mm, "INSTRUÇÕES (Todas as informações deste boleto são de exclusiva responsabilidade do beneficiário)")
+
+    p.setFont("Helvetica", 7.5)
+    p.drawString(ml + 2 * mm, y2 - 7 * mm, "- Cobrar juros de mora de 1,0% ao mês após o vencimento.")
+    p.drawString(ml + 2 * mm, y2 - 11.5 * mm, "- Cobrar multa de 2,0% após o vencimento.")
+    p.drawString(ml + 2 * mm, y2 - 16 * mm, "- Não receber após 30 dias do vencimento.")
+    p.drawString(ml + 2 * mm, y2 - 20.5 * mm, "- Sujeito a protesto após 5 dias úteis do vencimento.")
+
+    # QR Code PIX Híbrido dentro das instruções
+    if b.qr_code_pix:
+        p.setFont("Helvetica-Bold", 7.5)
+        p.drawString(ml + 85 * mm, y2 - 7 * mm, "Pague com PIX:")
+        p.setFont("Helvetica", 6)
+        p.drawString(ml + 85 * mm, y2 - 10.5 * mm, "Boleto Híbrido")
+
+        qr = qrcode.QRCode(box_size=3, border=1)
+        qr.add_data(b.qr_code_pix)
+        qr.make(fit=True)
+        img_qr = qr.make_image(fill_color="black", back_color="white")
+        qr_buf = BytesIO()
+        img_qr.save(qr_buf, format="PNG")
+        qr_buf.seek(0)
+        p.drawImage(ImageReader(qr_buf), ml + 85 * mm, y2 - 43 * mm, width=32 * mm, height=32 * mm)
+
+    # Coluna Direita (5 caixas de 9mm)
+    labels_dir = [
+        "(-) DESCONTO / ABATIMENTO",
+        "(-) OUTRAS DEDUÇÕES",
+        "(+) MORA / MULTA",
+        "(+) OUTROS ACRÉSCIMOS",
+        "(=) VALOR COBRADO"
+    ]
+    y_d2 = y2
+    for lbl in labels_dir:
+        p.rect(col_dir, y_d2 - 9 * mm, w_dir, 9 * mm)
+        p.setFont("Helvetica", 5.5)
+        p.drawString(col_dir + 1.5 * mm, y_d2 - 2.8 * mm, lbl)
+        y_d2 -= 9 * mm
+
+    y2 -= h_inst
+
+    # Linha 6 Ficha: Dados do Pagador (Sacado)
+    h_sac2 = 24 * mm
+    p.rect(ml, y2 - h_sac2, w_box, h_sac2)
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 1.5 * mm, y2 - 2.8 * mm, "PAGADOR")
+
+    p.setFont("Helvetica-Bold", 8)
+    p.drawString(ml + 2 * mm, y2 - 6.5 * mm, f"{b.pagador_nome} - CPF/CNPJ: {b.pagador_documento}")
+    p.setFont("Helvetica", 7.5)
+    p.drawString(ml + 2 * mm, y2 - 10.5 * mm, f"{b.pagador_endereco or 'ENDERECO NAO INFORMADO'} - {b.pagador_bairro or 'CENTRO'}")
+    p.drawString(ml + 2 * mm, y2 - 14.5 * mm, f"CEP: {b.pagador_cep or '00000-000'} - {b.pagador_cidade or 'SAO PAULO'}/{b.pagador_uf or 'SP'}")
+    p.setFont("Helvetica", 6)
+    p.drawString(ml + 2 * mm, y2 - 21 * mm, "Sacador / Avalista:")
+    p.drawRightString(mr - 2 * mm, y2 - 21 * mm, "Autenticação Mecânica - Ficha de Compensação")
+    y2 -= h_sac2
+
+    # Código de Barras I25 Febraban
+    if b.codigo_barras and len(b.codigo_barras) == 44:
+        d = createBarcodeDrawing("I2of5", value=b.codigo_barras, barWidth=0.254 * mm, barHeight=13 * mm, checksum=False)
+        d.drawOn(p, ml, y2 - 17 * mm)
 
     p.showPage()
     p.save()
     return buffer.getvalue()
+
+
