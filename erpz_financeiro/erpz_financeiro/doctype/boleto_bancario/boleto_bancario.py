@@ -106,3 +106,25 @@ class BoletoBancario(Document):
 
         frappe.db.commit()
         return {"success": True, "message": "Boleto liquidado e fatura baixada no ERPNext!"}
+
+
+@frappe.whitelist()
+def baixar_boleto_pdf(docname=None, boleto=None):
+    """Gera e faz o download direto do Boleto Bancário em PDF"""
+    name = docname or boleto or frappe.form_dict.get("docname") or frappe.form_dict.get("boleto")
+    if not name:
+        frappe.throw(_("Boleto Bancário não informado."))
+
+    bol_doc = frappe.get_doc("Boleto Bancario", name)
+    conta = frappe.get_doc("Configuracao Conta Bancaria", bol_doc.conta_bancaria)
+    comp = frappe.get_doc("Company", bol_doc.empresa)
+    bol_doc.banco_nome = conta.banco_nome
+    bol_doc.beneficiario_nome = comp.company_name or comp.name
+    bol_doc.beneficiario_cnpj = comp.tax_id or conta.get("cnpj") or "18.594.769/0001-40"
+    bol_doc.agencia = f"{conta.agencia}-{conta.digito_agencia or '0'}"
+    bol_doc.conta_corrente = f"{conta.conta_corrente}-{conta.digito_conta or '0'}"
+
+    pdf_bytes = gerar_pdf_boleto(bol_doc)
+    frappe.local.response["filename"] = f"Boleto_{bol_doc.nosso_numero or bol_doc.name}.pdf"
+    frappe.local.response["filecontent"] = pdf_bytes
+    frappe.local.response["type"] = "download"
