@@ -348,3 +348,32 @@ def gerar_pdf_boleto(b) -> bytes:
     return buffer.getvalue()
 
 
+
+
+import frappe
+from frappe import _
+from frappe.utils import flt, getdate, nowdate
+
+@frappe.whitelist()
+def gerar_boleto_de_fatura(sales_invoice, conta_bancaria, data_vencimento=None):
+    """Gera um Boleto Bancario vinculado a uma Sales Invoice do ERPNext"""
+    if not sales_invoice:
+        frappe.throw(_("Fatura de Venda não informada."))
+
+    if not conta_bancaria:
+        frappe.throw(_("Conta Bancária de Cobrança não informada."))
+
+    inv = frappe.get_doc("Sales Invoice", sales_invoice)
+    bol = frappe.new_doc("Boleto Bancario")
+    bol.empresa = inv.company
+    bol.fatura_origem = inv.name
+    bol.conta_bancaria = conta_bancaria
+    bol.cliente = inv.customer
+    bol.data_emissao = nowdate()
+    bol.data_vencimento = getdate(data_vencimento) if data_vencimento else getdate(inv.due_date or nowdate())
+    bol.valor_documento = flt(inv.outstanding_amount or inv.grand_total)
+    bol.numero_documento = inv.name
+    bol.insert(ignore_permissions=True)
+    frappe.db.commit()
+
+    return {"success": True, "boleto": bol.name}
