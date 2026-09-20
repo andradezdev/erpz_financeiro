@@ -1,0 +1,205 @@
+{
+ "actions": [],
+ "autoname": "format:BCO-{empresa}-{agencia}-{conta_corrente}",
+ "creation": "2026-09-20 02:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "empresa",
+  "banco",
+  "banco_codigo",
+  "banco_nome",
+  "column_break_bco_1",
+  "agencia",
+  "digito_agencia",
+  "conta_corrente",
+  "digito_conta",
+  "carteira",
+  "codigo_beneficiario",
+  "section_cnab_cfg",
+  "padrao_cnab",
+  "proximo_nosso_numero",
+  "sequencial_remessa_atual",
+  "column_break_cnab_1",
+  "multa_percentual",
+  "juros_mensal_percentual",
+  "dias_protesto",
+  "section_pix_cfg",
+  "chave_pix",
+  "tipo_chave_pix",
+  "nome_beneficiario_pix",
+  "cidade_pix"
+ ],
+ "fields": [
+  {
+   "fieldname": "empresa",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "banco",
+   "fieldtype": "Select",
+   "label": "Banco",
+   "options": "001 - Banco do Brasil\n033 - Santander\n104 - Caixa Econômica Federal\n237 - Bradesco\n341 - Itaú Unibanco\n748 - Sicredi\n756 - Sicoob\n077 - Banco Inter\n260 - Nubank",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "banco_codigo",
+   "fieldtype": "Data",
+   "label": "Código Compensação",
+   "read_only": 1
+  },
+  {
+   "fieldname": "banco_nome",
+   "fieldtype": "Data",
+   "label": "Nome do Banco",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_bco_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "agencia",
+   "fieldtype": "Data",
+   "label": "Agência",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "digito_agencia",
+   "fieldtype": "Data",
+   "label": "Dígito Agência"
+  },
+  {
+   "fieldname": "conta_corrente",
+   "fieldtype": "Data",
+   "label": "Conta Corrente",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "digito_conta",
+   "fieldtype": "Data",
+   "label": "Dígito Conta",
+   "reqd": 1
+  },
+  {
+   "fieldname": "carteira",
+   "fieldtype": "Data",
+   "label": "Carteira de Cobrança",
+   "default": "109",
+   "reqd": 1
+  },
+  {
+   "fieldname": "codigo_beneficiario",
+   "fieldtype": "Data",
+   "label": "Código do Beneficiário / Convênio",
+   "reqd": 1
+  },
+  {
+   "fieldname": "section_cnab_cfg",
+   "fieldtype": "Section Break",
+   "label": "Parâmetros de Remessa CNAB"
+  },
+  {
+   "fieldname": "padrao_cnab",
+   "fieldtype": "Select",
+   "label": "Padrão CNAB",
+   "options": "CNAB 240\nCNAB 400",
+   "default": "CNAB 240",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "proximo_nosso_numero",
+   "fieldtype": "Int",
+   "label": "Próximo Nosso Número",
+   "default": 1
+  },
+  {
+   "fieldname": "sequencial_remessa_atual",
+   "fieldtype": "Int",
+   "label": "Sequencial da Última Remessa",
+   "default": 1
+  },
+  {
+   "fieldname": "column_break_cnab_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "multa_percentual",
+   "fieldtype": "Percent",
+   "label": "Multa por Atraso (%)",
+   "default": "2.0"
+  },
+  {
+   "fieldname": "juros_mensal_percentual",
+   "fieldtype": "Percent",
+   "label": "Juros de Mora Mensal (%)",
+   "default": "1.0"
+  },
+  {
+   "fieldname": "dias_protesto",
+   "fieldtype": "Int",
+   "label": "Dias para Protesto",
+   "default": 5
+  },
+  {
+   "fieldname": "section_pix_cfg",
+   "fieldtype": "Section Break",
+   "label": "Configuração PIX (Boleto Híbrido)"
+  },
+  {
+   "fieldname": "chave_pix",
+   "fieldtype": "Data",
+   "label": "Chave PIX da Conta"
+  },
+  {
+   "fieldname": "tipo_chave_pix",
+   "fieldtype": "Select",
+   "label": "Tipo de Chave",
+   "options": "CNPJ\nCPF\nE-mail\nTelefone\nChave Aleatória (EVP)",
+   "default": "CNPJ"
+  },
+  {
+   "fieldname": "nome_beneficiario_pix",
+   "fieldtype": "Data",
+   "label": "Nome do Titular da Conta PIX"
+  },
+  {
+   "fieldname": "cidade_pix",
+   "fieldtype": "Data",
+   "label": "Cidade do Titular",
+   "default": "SAO PAULO"
+  }
+ ],
+ "modified": "2026-09-20 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ERPZ Financeiro",
+ "name": "Configuracao Conta Bancaria",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Accounts Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  }
+ ],
+ "track_changes": 1
+}

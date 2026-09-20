@@ -1,0 +1,241 @@
+{
+ "actions": [],
+ "autoname": "format:BOL-{YYYY}-{#####}",
+ "creation": "2026-09-20 02:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "empresa",
+  "fatura_origem",
+  "conta_bancaria",
+  "cliente",
+  "column_break_bol_1",
+  "status",
+  "data_emissao",
+  "data_vencimento",
+  "valor_documento",
+  "section_dados_bancarios",
+  "nosso_numero",
+  "numero_documento",
+  "carteira",
+  "column_break_dados_bancarios",
+  "linha_digitavel",
+  "codigo_barras",
+  "section_pix_hibrido",
+  "qr_code_pix",
+  "section_pagador",
+  "pagador_nome",
+  "pagador_documento",
+  "column_break_pagador",
+  "pagador_endereco",
+  "pagador_bairro",
+  "pagador_cidade",
+  "pagador_uf",
+  "pagador_cep",
+  "section_liquidacao",
+  "data_pagamento",
+  "valor_pago"
+ ],
+ "fields": [
+  {
+   "fieldname": "empresa",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "fatura_origem",
+   "fieldtype": "Link",
+   "label": "Fatura de Origem (Sales Invoice)",
+   "options": "Sales Invoice",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "conta_bancaria",
+   "fieldtype": "Link",
+   "label": "Conta Bancária",
+   "options": "Configuracao Conta Bancaria",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "cliente",
+   "fieldtype": "Link",
+   "label": "Cliente",
+   "options": "Customer",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_bol_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "Pendente\nRemessa Gerada\nRegistrado\nLiquidado / Pago\nBaixado\nCancelado",
+   "default": "Pendente",
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "data_emissao",
+   "fieldtype": "Date",
+   "label": "Data Emissão",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "data_vencimento",
+   "fieldtype": "Date",
+   "label": "Data Vencimento",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "valor_documento",
+   "fieldtype": "Currency",
+   "label": "Valor (R$)",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_dados_bancarios",
+   "fieldtype": "Section Break",
+   "label": "Dados do Boleto e Código de Barras"
+  },
+  {
+   "fieldname": "nosso_numero",
+   "fieldtype": "Data",
+   "label": "Nosso Número",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "numero_documento",
+   "fieldtype": "Data",
+   "label": "Número do Documento"
+  },
+  {
+   "fieldname": "carteira",
+   "fieldtype": "Data",
+   "label": "Carteira",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_dados_bancarios",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "linha_digitavel",
+   "fieldtype": "Data",
+   "label": "Linha Digitável (47 Dígitos)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "codigo_barras",
+   "fieldtype": "Data",
+   "label": "Código de Barras Febraban (44 Dígitos)",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_pix_hibrido",
+   "fieldtype": "Section Break",
+   "label": "PIX (Boleto Híbrido)"
+  },
+  {
+   "fieldname": "qr_code_pix",
+   "fieldtype": "Small Text",
+   "label": "Payload Copia e Cola / QR Code PIX",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_pagador",
+   "fieldtype": "Section Break",
+   "label": "Dados do Pagador (Sacado)"
+  },
+  {
+   "fieldname": "pagador_nome",
+   "fieldtype": "Data",
+   "label": "Razão Social / Nome"
+  },
+  {
+   "fieldname": "pagador_documento",
+   "fieldtype": "Data",
+   "label": "CPF / CNPJ"
+  },
+  {
+   "fieldname": "column_break_pagador",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "pagador_endereco",
+   "fieldtype": "Data",
+   "label": "Endereço"
+  },
+  {
+   "fieldname": "pagador_bairro",
+   "fieldtype": "Data",
+   "label": "Bairro"
+  },
+  {
+   "fieldname": "pagador_cidade",
+   "fieldtype": "Data",
+   "label": "Cidade"
+  },
+  {
+   "fieldname": "pagador_uf",
+   "fieldtype": "Data",
+   "label": "UF"
+  },
+  {
+   "fieldname": "pagador_cep",
+   "fieldtype": "Data",
+   "label": "CEP"
+  },
+  {
+   "fieldname": "section_liquidacao",
+   "fieldtype": "Section Break",
+   "label": "Liquidação e Pagamento",
+   "collapsible": 1
+  },
+  {
+   "fieldname": "data_pagamento",
+   "fieldtype": "Date",
+   "label": "Data do Pagamento",
+   "read_only": 1
+  },
+  {
+   "fieldname": "valor_pago",
+   "fieldtype": "Currency",
+   "label": "Valor Pago",
+   "read_only": 1
+  }
+ ],
+ "modified": "2026-09-20 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ERPZ Financeiro",
+ "name": "Boleto Bancario",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0
+  }
+ ],
+ "track_changes": 1
+}

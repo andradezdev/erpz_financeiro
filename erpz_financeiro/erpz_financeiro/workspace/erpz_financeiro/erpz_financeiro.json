@@ -1,0 +1,106 @@
+{
+ "app": "erpz_financeiro",
+ "charts": [],
+ "content": "[]",
+ "creation": "2026-09-20 02:00:00.000000",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "hide_custom": 0,
+ "icon": "wallet",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "ERPZ Financeiro",
+ "link_type": "DocType",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Cobrança Bancária",
+   "link_count": 0,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Boletos Bancários",
+   "link_count": 0,
+   "link_to": "Boleto Bancario",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Remessa CNAB",
+   "link_count": 0,
+   "link_to": "Remessa CNAB",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Retorno CNAB",
+   "link_count": 0,
+   "link_to": "Retorno CNAB",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Contas de Cobrança",
+   "link_count": 0,
+   "link_to": "Configuracao Conta Bancaria",
+   "link_type": "DocType",
+   "onboard": 1,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-09-20 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ERPZ Financeiro",
+ "name": "ERPZ Financeiro",
+ "owner": "Administrator",
+ "public": 1,
+ "roles": [],
+ "sequence_id": 11.0,
+ "shortcuts": [
+  {
+   "color": "Green",
+   "doc_view": "List",
+   "label": "Boletos Bancários",
+   "link_to": "Boleto Bancario",
+   "type": "DocType"
+  },
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "label": "Remessas CNAB",
+   "link_to": "Remessa CNAB",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "label": "Retornos CNAB",
+   "link_to": "Retorno CNAB",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "label": "Contas de Cobrança",
+   "link_to": "Configuracao Conta Bancaria",
+   "type": "DocType"
+  }
+ ],
+ "title": "ERPZ Financeiro"
+}

@@ -1,0 +1,93 @@
+{
+ "actions": [],
+ "autoname": "format:RET-{YYYY}-{#####}",
+ "creation": "2026-09-20 02:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "conta_bancaria",
+  "arquivo_retorno",
+  "column_break_ret_1",
+  "data_processamento",
+  "quantidade_titulos",
+  "valor_total_liquidado",
+  "section_titulos_ret",
+  "titulos_processados"
+ ],
+ "fields": [
+  {
+   "fieldname": "conta_bancaria",
+   "fieldtype": "Link",
+   "label": "Conta Bancária",
+   "options": "Configuracao Conta Bancaria",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "arquivo_retorno",
+   "fieldtype": "Attach",
+   "label": "Arquivo .RET Recebido do Banco",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_ret_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "data_processamento",
+   "fieldtype": "Date",
+   "label": "Data Processamento",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "quantidade_titulos",
+   "fieldtype": "Int",
+   "label": "Qtd Títulos Processados",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "valor_total_liquidado",
+   "fieldtype": "Currency",
+   "label": "Total Liquidado (R$)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_titulos_ret",
+   "fieldtype": "Section Break",
+   "label": "Títulos Processados no Arquivo"
+  },
+  {
+   "fieldname": "titulos_processados",
+   "fieldtype": "Table",
+   "label": "Ocorrências",
+   "options": "Retorno CNAB Item"
+  }
+ ],
+ "modified": "2026-09-20 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ERPZ Financeiro",
+ "name": "Retorno CNAB",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0
+  }
+ ],
+ "track_changes": 1
+}

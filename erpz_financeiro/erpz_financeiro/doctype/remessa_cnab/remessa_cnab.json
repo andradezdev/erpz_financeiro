@@ -1,0 +1,132 @@
+{
+ "actions": [],
+ "autoname": "format:REM-{YYYY}-{#####}",
+ "creation": "2026-09-20 02:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "conta_bancaria",
+  "empresa",
+  "padrao_cnab",
+  "column_break_rem_1",
+  "sequencial_remessa",
+  "data_geracao",
+  "quantidade_titulos",
+  "valor_total",
+  "section_boletos",
+  "boletos",
+  "section_arquivo",
+  "arquivo_remessa",
+  "conteudo_arquivo"
+ ],
+ "fields": [
+  {
+   "fieldname": "conta_bancaria",
+   "fieldtype": "Link",
+   "label": "Conta Bancária",
+   "options": "Configuracao Conta Bancaria",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "empresa",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "padrao_cnab",
+   "fieldtype": "Select",
+   "label": "Padrão CNAB",
+   "options": "CNAB 240\nCNAB 400",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "column_break_rem_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sequencial_remessa",
+   "fieldtype": "Int",
+   "label": "Sequencial da Remessa",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "data_geracao",
+   "fieldtype": "Date",
+   "label": "Data de Geração",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "quantidade_titulos",
+   "fieldtype": "Int",
+   "label": "Qtd Títulos",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "valor_total",
+   "fieldtype": "Currency",
+   "label": "Valor Total (R$)",
+   "read_only": 1,
+   "in_list_view": 1
+  },
+  {
+   "fieldname": "section_boletos",
+   "fieldtype": "Section Break",
+   "label": "Boletos Incluídos na Remessa"
+  },
+  {
+   "fieldname": "boletos",
+   "fieldtype": "Table",
+   "label": "Títulos",
+   "options": "Remessa CNAB Item"
+  },
+  {
+   "fieldname": "section_arquivo",
+   "fieldtype": "Section Break",
+   "label": "Arquivo Gerado para o Banco"
+  },
+  {
+   "fieldname": "arquivo_remessa",
+   "fieldtype": "Attach",
+   "label": "Arquivo .REM para Download",
+   "read_only": 1
+  },
+  {
+   "fieldname": "conteudo_arquivo",
+   "fieldtype": "Code",
+   "label": "Conteúdo Posicional CNAB",
+   "read_only": 1
+  }
+ ],
+ "modified": "2026-09-20 02:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "ERPZ Financeiro",
+ "name": "Remessa CNAB",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "role": "System Manager",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 1
+  },
+  {
+   "role": "Accounts User",
+   "read": 1,
+   "write": 1,
+   "create": 1,
+   "delete": 0
+  }
+ ],
+ "track_changes": 1
+}

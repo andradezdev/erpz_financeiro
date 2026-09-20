@@ -1,0 +1,17 @@
+[project]
+name = "erpz_financeiro"
+authors = [
+    { name = "ERPZ", email = "dev@erpz.io"}
+]
+description = "ERPZ Financeiro - Gestão Financeira, Cobrança Bancária CNAB 240/400, Boletos Registrados e PIX Dinâmico"
+requires-python = ">=3.12"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "qrcode>=7.0.0",
+    "reportlab>=3.6.0"
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
